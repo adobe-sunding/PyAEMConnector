@@ -2,16 +2,15 @@ import requests, json
 from requests.auth import HTTPBasicAuth
 import logging
 
-cfg = {
-   	"strict_success": [200, 201],
-	"lenient_success": [500],
-	"Activate": "/bin/replicate.json",
-	"Deactivate": "/bin/replicate.json",
-	"Delete": "/bin/wcmcommand"
-}
-
- 
 class AEMConnector:
+
+    cfg = {
+        "strict_success": [200, 201],
+        "lenient_success": [500],
+        "Activate": "/bin/replicate.json",
+        "Deactivate": "/bin/replicate.json",
+        "Delete": "/bin/wcmcommand"
+    }
 
     def __init__(self, host='http://localhost:4502', user='admin', password='admin'):
         self.host = host
@@ -85,7 +84,7 @@ class AEMConnector:
         
 
         try:
-            url = self.host + cfg[action]
+            url = self.host + AEMConnector.cfg[action]
             full_path =  path + '/' + name
             data = {'cmd': action, 'path':full_path, 'force':force}
 
@@ -106,9 +105,9 @@ class AEMConnector:
     def check(self, res, strict=True):
         
         logging.debug('Response code : ' + str(res.status_code))
-        if res.status_code in cfg['strict_success']:
+        if res.status_code in AEMConnector.cfg['strict_success']:
             return True
-        elif not strict and res.status_code in cfg['lenient_success']:
+        elif not strict and res.status_code in AEMConnector.cfg['lenient_success']:
             logging.debug('Lenient Success allowed for code : ' + str(res.status_code))
             return True
         else:
@@ -116,16 +115,3 @@ class AEMConnector:
             logging.debug('...............................\n')
             return False
 
-
-# Sample usage
-if __name__== "__main__":
-    # Set logging level
-    logging.basicConfig(level=logging.DEBUG)
-
-    # Create a connection
-    con = AEMConnector()
-
-    # Fire a get request 
-    res = con.get('/content/dam.1.json')
-
-    logging.debug('Res: '+str(res))
